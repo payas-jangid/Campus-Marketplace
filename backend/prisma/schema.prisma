@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User{
+  id String @id @default(uuid())
+  name String
+  clerkId String @unique
+  email String @unique
+  avatarUrl String?
+  createdAt DateTime @default(now())
+
+  items Item[] @relation("SellerItems")
+  messages Message[]
+  boughtChats Chat[] @relation("BuyerChats")
+  soldChats Chat[] @relation("SellerChats")
+}
+
+model Category{
+  id String @id @default(uuid())
+  name String
+  slug String @unique
+  icon String
+  items Item[]
+}
+
+enum ItemStatus{
+  AVAILABLE
+  NEGOTIATING
+  SOLD
+}
+
+model Item {
+  id          String     @id @default(uuid())
+  sellerId    String
+  categoryId  String
+  title       String
+  description String
+  price       Float
+  images      String[]   // Cloudinary / S3 Image URLs
+  status      ItemStatus @default(AVAILABLE)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  seller User @relation("SellerItems", fields: [sellerId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+  chats    Chat[]
+}
+model Chat {
+  id        String   @id @default(uuid())
+  itemId    String
+  buyerId   String
+  sellerId  String
+  createdAt DateTime @default(now())
+
+  item     Item      @relation(fields: [itemId], references: [id])
+  buyer    User      @relation("BuyerChats", fields: [buyerId], references: [id])
+  seller   User      @relation("SellerChats", fields: [sellerId], references: [id])
+  messages Message[]
+
+  @@unique([itemId, buyerId]) // Strictly ONE chat thread per buyer per item
+}
+
+enum MessageType {
+  TEXT
+  OFFER
+  SYSTEM
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model Message {
+  id          String       @id @default(uuid())
+  chatId      String
+  senderId    String
+  type        MessageType  @default(TEXT)
+  content     String?
+  offerAmount Float?
+  offerStatus OfferStatus?
+  createdAt   DateTime     @default(now())
+
+  chat   Chat @relation(fields: [chatId], references: [id])
+  sender User @relation(fields: [senderId], references: [id])
+}
