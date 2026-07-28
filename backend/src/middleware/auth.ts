@@ -4,12 +4,9 @@ import { prisma } from "../config/db.js";
 export interface AuthenticatedRequest extends Request {
   user?: any;
 }
-{
-  /*
-  org.gradle.java.home=C:\\Program Files\\Java\\jdk-23
-  
-   */
-}
+
+//  org.gradle.java.home=C:\\Program Files\\Java\\jdk-23
+
 export const requireAuthUser = async (
   req: AuthenticatedRequest,
   res: Response,

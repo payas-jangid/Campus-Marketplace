@@ -1,22 +1,23 @@
 import { Router } from "express";
-import { PrismaClient } from "@prisma/client";
+import {
+  getItem,
+  getItemById,
+  createItem,
+  getCategories,
+} from "../controllers/item.controller.js";
+import { upload } from "../config/cloudinary.js";
+import { requireAuthUser } from "../middleware/auth.js";
 
 const router = Router();
-const prisma = new PrismaClient();
-router.get("/", async (req, res) => {
-  console.log("RECEIVED GET /api/items REQUEST");
-  try {
-    const items = await prisma.item.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-    console.log("Found items:", items.length);
-    return res.json(items);
-  } catch (error) {
-    console.error("Error fetching items:", error);
-    return res.status(500).json({ error: "Failed to fetch items" });
-  }
-});
+
+// 1. Categories route (Must come before /:id so "categories" isn't treated as an ID parameter)
+router.get("/categories", getCategories);
+
+// 2. Item list and individual item details
+router.get("/", getItem);
+router.get("/:id", getItemById);
+
+// 3. Create listing with image upload middleware & auth protection
+router.post("/", requireAuthUser, upload.array("images", 5), createItem);
 
 export default router;

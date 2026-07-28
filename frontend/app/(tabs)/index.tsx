@@ -18,8 +18,8 @@ type Item = {
   id: string;
   title: string;
   price: number;
-  imageUrl: string;
-  category: string;
+  images: string[];
+  category: { id: string; name: string };
   createdAt: string;
 };
 
@@ -47,10 +47,10 @@ export default function HomeScreen() {
       }
 
       const data = await response.json();
-      setItems(Array.isArray(data) ? data : []); // Ensures data is an array
+      setItems(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error fetching items:", err);
-      setItems([]); // Fallback to empty list so ListEmptyComponent renders
+      setItems([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -68,8 +68,8 @@ export default function HomeScreen() {
   return (
     <SafeAreaView className="flex-1 bg-slate-50 dark:bg-slate-900 px-4 pt-2">
       {/* Header & Search */}
-      <View className="mb-4">
-        <Text className="text-2xl font-bold text-slate-900 dark:text-white">
+      <View className="mb-4 p-3">
+        <Text className="text-2xl text-center font-bold text-slate-900 dark:text-white">
           Campus Market 🛒
         </Text>
         <View className="flex-row items-center bg-white dark:bg-slate-800 rounded-xl px-3 py-2 mt-3 shadow-sm border border-slate-200 dark:border-slate-700">
@@ -84,7 +84,6 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* Feed Grid */}
       {loading ? (
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#4f46e5" />
@@ -105,27 +104,34 @@ export default function HomeScreen() {
               }}
             />
           }
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => router.push(`/listing/${item.id}` as Href)}
-              className="bg-white dark:bg-slate-800 rounded-2xl p-2.5 mb-4 shadow-sm w-[48%] border border-slate-100 dark:border-slate-700"
-            >
-              <Image
-                source={{ uri: item.imageUrl }}
-                className="w-full h-36 rounded-xl bg-slate-200"
-                resizeMode="cover"
-              />
-              <Text
-                numberOfLines={1}
-                className="font-semibold text-slate-900 dark:text-white mt-2 text-base"
+          renderItem={({ item }) => {
+            const imageUrl =
+              Array.isArray(item.images) && item.images.length > 0
+                ? item.images[0]
+                : "https://via.placeholder.com/300";
+
+            return (
+              <TouchableOpacity
+                onPress={() => router.push(`/listing/${item.id}` as Href)}
+                className="bg-white dark:bg-slate-800 rounded-2xl p-2.5 mb-4 shadow-sm w-[48%] border border-slate-100 dark:border-slate-700"
               >
-                {item.title}
-              </Text>
-              <Text className="text-indigo-600 dark:text-indigo-400 font-bold text-lg mt-0.5">
-                ₹{item.price}
-              </Text>
-            </TouchableOpacity>
-          )}
+                <Image
+                  source={{ uri: imageUrl }} 
+                  className="w-full h-36 rounded-xl bg-slate-200"
+                  resizeMode="cover"
+                />
+                <Text
+                  numberOfLines={1}
+                  className="font-semibold text-slate-900 dark:text-white mt-2 text-base"
+                >
+                  {item.title}
+                </Text>
+                <Text className="text-indigo-600 dark:text-indigo-400 font-bold text-lg mt-0.5">
+                  ₹{item.price}
+                </Text>
+              </TouchableOpacity>
+            );
+          }}
           ListEmptyComponent={
             <View className="flex-1 justify-center items-center mt-20">
               <Ionicons name="basket-outline" size={48} color="#94a3b8" />

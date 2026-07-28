@@ -6,7 +6,7 @@ import { PrismaClient } from "@prisma/client";
 const router = Router();
 const prisma = new PrismaClient();
 
-// Note: Webhooks need the RAW body to verify the signature accurately.
+
 router.post(
   "/clerk",
   express.raw({ type: "application/json" }),
@@ -18,7 +18,6 @@ router.post(
       return res.status(500).json({ error: "Webhook secret missing" });
     }
 
-    // Get the Svix headers for verification
     const svix_id = req.headers["svix-id"] as string;
     const svix_timestamp = req.headers["svix-timestamp"] as string;
     const svix_signature = req.headers["svix-signature"] as string;
@@ -27,7 +26,6 @@ router.post(
       return res.status(400).json({ error: "Missing svix headers" });
     }
 
-    // Verify payload signature
     let evt: any;
     try {
       const payload = req.body.toString("utf8");
