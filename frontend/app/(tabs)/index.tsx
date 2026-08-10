@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Href, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useItemStore } from "@/store/useItemStore";
 
 type Item = {
   id: string;
@@ -25,41 +26,22 @@ type Item = {
 
 export default function HomeScreen() {
   const router = useRouter();
-  const [items, setItems] = useState<Item[]>([]);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchItems = async () => {
-    try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/api/items`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "true",
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(`Server returned status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setItems(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error("Error fetching items:", err);
-      setItems([]);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+  const { items, loading, fetchItems } = useItemStore();
 
   useEffect(() => {
-    fetchItems();
-  }, []);
+    if(items.length === 0){
+      fetchItems();
+    }
+  },[]);
+
+  const onRefresh = async() => {
+    setRefreshing(true);
+    await fetchItems();
+    setRefreshing(false);
+  }
 
   const filteredItems = items.filter((item) =>
     item.title?.toLowerCase().includes(search.toLowerCase()),
@@ -112,11 +94,11 @@ export default function HomeScreen() {
 
             return (
               <TouchableOpacity
-                onPress={() => router.push(`/listing/${item.id}` as Href)}
+                onPress={() => router.push(`/listing/${item.id}`)}
                 className="bg-white dark:bg-slate-800 rounded-2xl p-2.5 mb-4 shadow-sm w-[48%] border border-slate-100 dark:border-slate-700"
               >
                 <Image
-                  source={{ uri: imageUrl }} 
+                  source={{ uri: imageUrl }}
                   className="w-full h-36 rounded-xl bg-slate-200"
                   resizeMode="cover"
                 />

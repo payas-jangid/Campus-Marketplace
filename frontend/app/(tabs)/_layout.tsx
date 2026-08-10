@@ -47,6 +47,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="chats"
+        options={{
+          title: "chats",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="chatbox-outline" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

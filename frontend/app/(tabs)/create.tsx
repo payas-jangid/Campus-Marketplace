@@ -15,6 +15,8 @@ import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@clerk/expo";
+import { useItemStore } from "@/store/useItemStore";
+
 interface Category {
   id: string;
   name: string;
@@ -32,6 +34,8 @@ export default function CreateListingScreen() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryId, setCategoryId] = useState<string>("");
   const [loadingCategories, setLoadingCategories] = useState(true);
+
+  const addItemCache = useItemStore((state) => state.addItemToCache);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -88,8 +92,6 @@ export default function CreateListingScreen() {
 
     setLoading(true);
     try {
-      // 1. Upload Image to Cloudinary (or backend)
-      // 2. POST listing payload to Express API endpoint
       const formData = new FormData();
       formData.append('title',title);
       formData.append('description',description || '');
@@ -115,13 +117,17 @@ export default function CreateListingScreen() {
       });
 
       const raw = await response.text();
-      console.log("RAW SERVER RESPONSE:", raw);
 
       if (!response.ok) {
         throw new Error("Failed to create listing (check console for details)");
       }
 
-      const data = JSON.parse(raw);
+      const createdItem = JSON.parse(raw);
+      addItemCache(createdItem);
+      setTitle("");
+      setPrice("");
+      setDescription("");
+      setImage(null);
       Alert.alert("Success", "Listing created successfully!");
       router.push("/(tabs)");
     } catch (err) {

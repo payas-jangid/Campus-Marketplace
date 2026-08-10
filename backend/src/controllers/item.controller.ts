@@ -63,7 +63,7 @@ export const getItemById = async (req: AuthenticatedRequest, res: Response) => {
     if (!item) {
       return res.status(404).json({ error: "Item not found" });
     }
-
+    console.log(item);
     return res.json(item);
   } catch (error) {
     console.error("getItemById Error:", error);
