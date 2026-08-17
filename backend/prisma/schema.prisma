@@ -64,7 +64,7 @@ model Chat {
   sellerId  String
   createdAt DateTime @default(now())
 
-  item     Item      @relation(fields: [itemId], references: [id])
+  item     Item      @relation(fields: [itemId], references: [id],onDelete: Cascade)
   buyer    User      @relation("BuyerChats", fields: [buyerId], references: [id])
   seller   User      @relation("SellerChats", fields: [sellerId], references: [id])
   messages Message[]
@@ -94,6 +94,6 @@ model Message {
   offerStatus OfferStatus?
   createdAt   DateTime     @default(now())
 
-  chat   Chat @relation(fields: [chatId], references: [id])
+  chat   Chat @relation(fields: [chatId], references: [id],onDelete: Cascade)
   sender User @relation(fields: [senderId], references: [id])
 }

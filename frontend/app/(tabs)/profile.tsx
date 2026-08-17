@@ -4,6 +4,7 @@ import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useUser, useClerk } from "@clerk/expo";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 export default function ProfileScreen() {
   const { user } = useUser();
@@ -28,7 +29,9 @@ export default function ProfileScreen() {
 
         {/* Action Options */}
         <View className="bg-white dark:bg-slate-800 rounded-2xl p-2 mt-6 shadow-sm border border-slate-100 dark:border-slate-700">
-          <TouchableOpacity className="flex-row items-center p-3 border-b border-slate-100 dark:border-slate-700">
+          <TouchableOpacity
+            onPress={() => router.push("/my-listing")}
+           className="flex-row items-center p-3 border-b border-slate-100 dark:border-slate-700">
             <Ionicons name="pricetags-outline" size={22} color="#4f46e5" />
             <Text className="flex-1 ml-3 font-semibold text-slate-800 dark:text-slate-200">
               My Active Listings

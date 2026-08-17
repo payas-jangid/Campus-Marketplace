@@ -77,7 +77,6 @@ export const createItem = async (req: AuthenticatedRequest, res: Response) => {
     console.log("Body:", req.body);
     console.log("Files:", req.files);
 
-
     const { title, description, price, categoryId } = req.body;
 
     if (!title || !price || !categoryId) {
@@ -92,7 +91,6 @@ export const createItem = async (req: AuthenticatedRequest, res: Response) => {
         .json({ error: "User identity missing from request" });
     }
 
-    
     const files = req.files as Express.Multer.File[] | undefined;
     const images =
       files && Array.isArray(files) ? files.map((file) => file.path) : [];
@@ -135,3 +133,69 @@ export const getCategories = async (
     return res.status(500).json({ error: "Failed to fetch categories" });
   }
 };
+
+export const getSellerItems = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  try {
+    const user = req.user as any;
+
+    const items = await prisma.item.findMany({
+      where: {
+        sellerId: user.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return res.status(200).json(items);
+  } catch (error) {
+    console.error("Error fetching seller items:", error);
+    return res.status(500).json({ error: "Failed to fetch your listings" });
+  }
+};
+
+export const updateItemStatus = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  try {
+    const id = req.params.id as string;
+    const { status } = req.body;
+    const userId = (req.user as any).id;
+    const item = await prisma.item.findUnique({ where: { id } });
+    if (!item) return res.status(404).json({ error: "Item not found" });
+    if (item.sellerId !== userId)return res.status(403).json({ error: "Unauthorized" });
+
+    const updatedItem = await prisma.item.update({
+      where : {id},
+      data:{
+        status
+      },
+    });
+
+    return res.status(200).json(updatedItem);
+  } catch (error) {
+    console.error("Error updating status:", error);
+    return res.status(500).json({ error: "Failed to update status" });
+  }
+};
+
+export const deleteItem = async(req : AuthenticatedRequest,res : Response) => {
+  try {
+    const id = req.params.id as string;
+    const userId = (req.user as any).id;
+    const item = await prisma.item.findUnique({ where: { id } });
+    if (!item) return res.status(404).json({ error: "Item not found" });
+    if (item.sellerId !== userId)
+      return res.status(403).json({ error: "Unauthorized" });
+
+    await prisma.item.delete({ where: { id } });
+
+    return res.status(200).json({ message: "Item deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting item:", error);
+    return res.status(500).json({ error: "Failed to delete item" });
+  }
+}

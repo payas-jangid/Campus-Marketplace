@@ -96,15 +96,12 @@ export default function ChatScreen() {
           setMessages(data);
         }
 
-        // 👈 CRITICAL FIX: Always update auth and force a fresh connection
         socket.auth = { token };
 
-        // If a ghost connection exists from a previous login, kill it
         if (socket.connected) {
           socket.disconnect();
         }
 
-        // Connect fresh with the current user's token
         socket.connect();
 
         socket.emit("join_room", chatId);
@@ -165,7 +162,6 @@ export default function ChatScreen() {
       chatId,
       content: inputText.trim(),
       type: "TEXT",
-      // senderId removed - backend handles it securely!
     };
 
     socket.emit("send_message", payload);
