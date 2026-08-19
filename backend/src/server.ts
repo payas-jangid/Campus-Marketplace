@@ -10,6 +10,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { clerkClient,clerkMiddleware } from "@clerk/express";
 import { verifyToken } from "@clerk/backend";
+import "./config/redis.js"
 
 import authRoutes from "./routes/auth.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js";

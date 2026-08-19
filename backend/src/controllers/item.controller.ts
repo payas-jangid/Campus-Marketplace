@@ -1,6 +1,7 @@
 import { prisma } from "../config/db.js";
 import { type AuthenticatedRequest } from "../middleware/auth.js";
 import { type Response } from "express";
+import { invalidateCachePattern } from "../utils/cacheInvalidator.js";
 
 export const getItem = async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -73,10 +74,6 @@ export const getItemById = async (req: AuthenticatedRequest, res: Response) => {
 
 export const createItem = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    console.log("--> Received POST /api/items request");
-    console.log("Body:", req.body);
-    console.log("Files:", req.files);
-
     const { title, description, price, categoryId } = req.body;
 
     if (!title || !price || !categoryId) {
@@ -110,6 +107,9 @@ export const createItem = async (req: AuthenticatedRequest, res: Response) => {
         seller: { select: { id: true, name: true, avatarUrl: true } },
       },
     });
+
+    await invalidateCachePattern("cache:/api/items*");
+
     return res.status(201).json(newItem);
   } catch (error) {
     console.error("createItem Error:", error);
@@ -175,6 +175,8 @@ export const updateItemStatus = async (
       },
     });
 
+    await invalidateCachePattern("cache:/api/items*");
+
     return res.status(200).json(updatedItem);
   } catch (error) {
     console.error("Error updating status:", error);
@@ -192,6 +194,8 @@ export const deleteItem = async(req : AuthenticatedRequest,res : Response) => {
       return res.status(403).json({ error: "Unauthorized" });
 
     await prisma.item.delete({ where: { id } });
+
+    await invalidateCachePattern("cache:/api/items*");
 
     return res.status(200).json({ message: "Item deleted successfully" });
   } catch (error) {
