@@ -17,6 +17,7 @@
     "ioredis": "^6.0.0",
     "multer": "^2.2.0",
     "multer-storage-cloudinary": "^4.0.0",
+    "rate-limiter-flexible": "^11.2.0",
     "socket.io": "^4.8.3",
     "svix": "^1.98.0"
   },
