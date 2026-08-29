@@ -55,9 +55,9 @@ router.post(
           .json({ error: "Missing required fields: itemId and sellerId" });
       }
 
-      // if (buyerId === sellerId) {
-      //   return res.status(400).json({ error: "You cannot start a chat thread with yourself." });
-      // }
+      if (buyerId === sellerId) {
+        return res.status(400).json({ error: "You cannot start a chat thread with yourself." });
+      }
 
       let chat = await prisma.chat.findUnique({
         where: {

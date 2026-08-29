@@ -17,7 +17,43 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#4f46e5",
+        tabBarActiveTintColor: "white",
+        tabBarStyle: {
+          position: "absolute",
+          bottom: 25,
+          marginLeft: 30,
+          borderRadius: 40,
+          //backgroundColor:"white",
+          width:300,
+          maxHeight: 105,
+          flexDirection: "row",
+          alignItems: "center",
+          alignSelf:"auto",
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.1,
+          shadowRadius: 10,
+          elevation: 5,
+          borderTopWidth: 0,
+          paddingHorizontal: 10,
+        },
+        tabBarItemStyle: {
+          flex: 1,
+          height: 45,
+          justifyContent: "center",
+          //backgroundColor:"white",
+          
+          alignItems: "center",
+        },
+        tabBarLabelStyle: {
+          fontSize: 9,
+          marginTop: 2,
+        },
+        tabBarIconStyle: {
+          marginTop: 4,
+          //backgroundColor:"white"
+        },
+        tabBarHideOnKeyboard: true,
       }}
     >
       <Tabs.Screen
